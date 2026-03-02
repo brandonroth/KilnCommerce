@@ -1,0 +1,12 @@
+.env
+.DS_Store
+node_modules
+service/cdk.out
+service/cdk-outputs.json
+service/products/index.ts
+site/public/images/*.webp
+site/.env.local
+site/env.local
+site/.next/
+site/out/
+.claude

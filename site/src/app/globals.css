@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap");
+
+:root {
+  --green: #2d4a3e;
+  --green-deep: #1a3028;
+  --green-light: #3d6b56;
+  --orange: #d4663a;
+  --orange-light: #e8845a;
+  --orange-glow: rgba(212, 102, 58, 0.12);
+  --black: #1a1a18;
+  --charcoal: #2a2a26;
+  --cream: #f2ede4;
+  --cream-dark: #e4ddd2;
+  --text: #1a1a18;
+  --text-light: #6e6a62;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+  color: var(--text);
+  background: var(--cream);
+  overflow-x: hidden;
+  font-weight: 300;
+}
+
+/* Utility classes matching the original design */
+.tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
+}
+
+/* Drawer animations */
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-slide-up { animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-slide-left { animation: slide-left 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-in { animation: fade-in 0.2s ease; }
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: all 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

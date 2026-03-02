@@ -1,0 +1,53 @@
+{
+  "name": "site-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "deploy": "cdk deploy --profile personal --require-approval never --outputs-file cdk-outputs.json",
+    "destroy": "cdk destroy --profile personal --force",
+    "put-secrets": "ts-node scripts/put-secrets.ts",
+    "write-env": "ts-node scripts/write-env.ts",
+    "seed": "ts-node scripts/seed.ts update",
+    "seed:reset": "ts-node scripts/seed.ts reset --force",
+    "lint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.997.0",
+    "@aws-sdk/client-s3": "^3.997.0",
+    "aws-cdk-lib": "^2.177.0",
+    "constructs": "^10.0.0",
+    "decimal.js": "^10.6.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.3",
+    "resend": "^6.9.2",
+    "shippo": "^2.18.0",
+    "stripe": "^20.3.1"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.1000.0",
+    "@aws-sdk/client-ssm": "^3.999.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "sharp": "^0.33.0",
+    "@types/aws-lambda": "^8.10.0",
+    "@types/jest": "^29.0.0",
+    "@types/marked": "^5.0.2",
+    "@types/node": "^22.0.0",
+    "aws-cdk": "^2.177.0",
+    "aws-sdk-client-mock": "^4.0.0",
+    "aws-sdk-client-mock-jest": "^4.0.0",
+    "dotenv": "^17.3.1",
+    "esbuild": "^0.20.0",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.56.1"
+  }
+}

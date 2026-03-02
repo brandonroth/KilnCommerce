@@ -1,0 +1,21 @@
+{
+  "name": "bees-bowls",
+  "private": true,
+  "scripts": {
+    "deploy": "npm --prefix site run build && npm --prefix service run deploy",
+    "first-deploy": "npm --prefix service run deploy && npm --prefix service run write-env && npm run deploy",
+    "dev": "npm --prefix site run dev",
+    "build": "npm --prefix site run build",
+    "resize-images": "mogrify -strip -resize '1200x1200>' site/public/images/*.webp",
+    "setup": "git config core.hooksPath hooks",
+    "check-secrets": "gitleaks detect --source . --no-git",
+    "test": "npm --prefix service run test",
+    "test:watch": "npm --prefix service run test:watch",
+    "lint": "npm --prefix site run lint && npm --prefix service run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}
