@@ -35,7 +35,16 @@ export function createHandler({ productsRepo }: ProductsDeps) {
 
     const result = await productsRepo.getAll({ status, limit, lastKey });
     logger.info({ event: "products_listed", status, count: result.items.length, paginated: !!result.lastKey });
-    return { statusCode: 200, headers: corsHeaders(event), body: JSON.stringify(result) };
+    return {
+      statusCode: 200,
+      headers: {
+        ...corsHeaders(event),
+        // Cache the product list in the browser for 60s; serve stale for 30s while revalidating.
+        // Covers the common homepage → shop navigation without an extra network round-trip.
+        "Cache-Control": "public, max-age=60, stale-while-revalidate=30",
+      },
+      body: JSON.stringify(result),
+    };
   };
 }
 
