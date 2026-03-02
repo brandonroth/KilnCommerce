@@ -44,6 +44,8 @@ test("starting checkout removes item from store, canceling returns it", async ({
  * Stripe test card: 5555 5555 5555 4444 (Mastercard) | 10/30 | 444
  */
 test("add item to cart and complete checkout", async ({ page }) => {
+  test.setTimeout(120_000);
+
   // Navigate to the shop and wait for products to render
   await page.goto("/shop");
   await page.locator(".group").first().waitFor();
@@ -60,11 +62,14 @@ test("add item to cart and complete checkout", async ({ page }) => {
   // Wait for our embedded checkout page
   await page.waitForURL(/\/checkout$/, { timeout: 20_000 });
 
-  // Stripe renders the checkout form inside an iframe
-  const stripeFrame = page.frameLocator('iframe[src*="checkout.stripe.com"]');
+  // Stripe's EmbeddedCheckout renders the form inside an iframe that lives inside
+  // a shadow DOM host — standard document.querySelectorAll and page.frames() won't
+  // find it. Use Playwright's pierce locator (`>>`) to cross shadow boundaries,
+  // then promote it to a FrameLocator via .contentFrame().
+  const stripeFrame = page.locator(">> iframe").contentFrame();
 
-  // Wait for the iframe to be ready
-  await stripeFrame.getByRole("textbox", { name: "Full name" }).waitFor({ timeout: 20_000 });
+  // Wait for the form to render inside the iframe
+  await stripeFrame.getByPlaceholder("email@example.com").waitFor({ state: "attached", timeout: 90_000 });
 
   // If Stripe Link remembers us, dismiss it to reach the standard input form
   const payWithoutLink = stripeFrame.locator(".LinkCancelPartialLoginButton");
@@ -73,25 +78,45 @@ test("add item to cart and complete checkout", async ({ page }) => {
     await payWithoutLink.click();
   }
 
+  // Email (required by Stripe's current checkout flow)
+  await stripeFrame.getByPlaceholder("email@example.com").fill("test@example.com");
+
   // Full name
   await stripeFrame.getByRole("textbox", { name: "Full name" }).fill("Test User");
 
   // Phone number
   await stripeFrame.getByRole("textbox", { name: "Phone number" }).fill("5635056381");
 
-  // Shipping address (autocomplete combobox — fill street, pick first suggestion)
-  await stripeFrame.getByRole("combobox", { name: "Address" }).fill("241 W 380 S");
-  await stripeFrame.locator("div").nth(2).click();
+  // Shipping address — click "Enter address manually" to bypass autocomplete
+  const enterManually = stripeFrame.getByRole("button", { name: /enter address manually/i });
+  await enterManually.waitFor({ state: "visible", timeout: 5_000 }).catch(() => null);
+  if (await enterManually.isVisible()) {
+    await enterManually.click();
+  }
+
+  // Address fields (visible after entering manually or via autocomplete)
+  const addressCombo = stripeFrame.getByRole("combobox", { name: "Address" });
+  const addressComboVisible = await addressCombo.isVisible().catch(() => false);
+  if (addressComboVisible) {
+    await addressCombo.fill("241 W 380 S");
+    await stripeFrame.locator("div").nth(2).click();
+  } else {
+    await stripeFrame.getByPlaceholder(/address line 1/i).fill("241 W 380 S");
+  }
 
   // City / ZIP
   await stripeFrame.getByRole("textbox", { name: "City" }).fill("American Fork");
   await stripeFrame.getByRole("textbox", { name: "ZIP" }).fill("84003");
 
-  // Select card payment method (radio has tabindex=-1, requires force)
-  await stripeFrame.locator("#payment-method-accordion-item-title-card").click({ force: true });
+  // Continue to payment step (Stripe's two-step form)
+  await stripeFrame.getByRole("button", { name: /continue/i }).click();
+
+  // Select card payment method
+  await stripeFrame.locator("#payment-method-accordion-item-title-card").waitFor({ timeout: 10_000 }).catch(() => null);
+  await stripeFrame.locator("#payment-method-accordion-item-title-card").click({ force: true }).catch(() => null);
 
   // Wait for card fields to expand
-  await stripeFrame.getByRole("textbox", { name: "Card number" }).waitFor({ state: "visible", timeout: 5_000 });
+  await stripeFrame.getByRole("textbox", { name: "Card number" }).waitFor({ state: "visible", timeout: 10_000 });
   await stripeFrame.getByRole("textbox", { name: "Card number" }).fill("5555 5555 5555 4444");
   await stripeFrame.getByRole("textbox", { name: "Expiration" }).fill("10 / 30");
   await stripeFrame.getByRole("textbox", { name: "CVC" }).fill("444");

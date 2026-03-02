@@ -37,7 +37,7 @@ function mockFetch(status: number, body: unknown) {
 describe("ApiProductRepository.getAll", () => {
   it("returns products on success", async () => {
     const products = [makeProduct()];
-    mockFetch(200, products);
+    mockFetch(200, { items: products });
     const repo = makeRepo();
     await expect(repo.getAll()).resolves.toEqual(products);
     expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/products`);
@@ -81,14 +81,14 @@ describe("ApiProductRepository.getByTag", () => {
       makeProduct({ slug: "b", tags: ["ceramic"] }),
       makeProduct({ slug: "c", tags: ["wood", "large"] }),
     ];
-    mockFetch(200, products);
+    mockFetch(200, { items: products });
     const repo = makeRepo();
     const result = await repo.getByTag("wood");
     expect(result.map((p) => p.slug)).toEqual(["a", "c"]);
   });
 
   it("returns empty array when no products match", async () => {
-    mockFetch(200, [makeProduct({ tags: ["ceramic"] })]);
+    mockFetch(200, { items: [makeProduct({ tags: ["ceramic"] })] });
     const repo = makeRepo();
     await expect(repo.getByTag("wood")).resolves.toEqual([]);
   });
@@ -101,7 +101,7 @@ describe("ApiProductRepository.getFeatured", () => {
       makeProduct({ slug: "b" }),
       makeProduct({ slug: "c", badge: "new" }),
     ];
-    mockFetch(200, products);
+    mockFetch(200, { items: products });
     const repo = makeRepo();
     const result = await repo.getFeatured();
     expect(result.map((p) => p.slug)).toEqual(["a", "c"]);
@@ -114,7 +114,7 @@ describe("ApiProductRepository.getAllTags", () => {
       makeProduct({ tags: ["wood", "small"] }),
       makeProduct({ tags: ["ceramic", "wood"] }),
     ];
-    mockFetch(200, products);
+    mockFetch(200, { items: products });
     const repo = makeRepo();
     await expect(repo.getAllTags()).resolves.toEqual([
       "ceramic",
@@ -124,7 +124,7 @@ describe("ApiProductRepository.getAllTags", () => {
   });
 
   it("returns empty array when products have no tags", async () => {
-    mockFetch(200, [makeProduct({ tags: [] })]);
+    mockFetch(200, { items: [makeProduct({ tags: [] })] });
     const repo = makeRepo();
     await expect(repo.getAllTags()).resolves.toEqual([]);
   });
